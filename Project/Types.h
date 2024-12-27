@@ -1,0 +1,11 @@
+#pragma once
+
+typedef ID3D12Device* LPDEVICE;
+
+typedef XMMATRIX		MATRIXA;
+typedef XMFLOAT4X4		MATRIX;
+typedef XMVECTOR		VECTOR;
+typedef XMFLOAT4		VECTOR4;
+typedef XMFLOAT3		VECTOR3;
+typedef XMFLOAT2		VECTOR2;
+typedef XMFLOAT4		COLOR;

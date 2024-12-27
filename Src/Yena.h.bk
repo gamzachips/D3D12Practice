@@ -1,0 +1,419 @@
+// 
+//! \file   Yena.h
+//! \brief  예나 / 엔진 / 기반 프레임워크 헤더.
+//! 
+//! \author	김기홍 / Kihong Kim / onlysonim@gmail.com
+//! \date	2020.08.22. Updated. (DX12.x Windows 10 SDK 10.0.x)
+//
+#pragma once
+#pragma warning(disable:4996)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// 기본 필수 헤더 정의
+//
+/////////////////////////////////////////////////////////////////////////////
+#include "windows.h"		//Windows 기본 헤더.
+#include "tchar.h"
+
+#include "expAfx.h"			//엔진\예외처리 프레임워크. 
+#include "winAfx.h"			//엔진\윈도 프레임워크.
+#include "dxAfx.h"			//엔진\DX 표준 헤더 및 헬퍼 클래스.
+#include "timer.h"			//엔진\타이머 클래스.
+
+
+// 엔진 최상위 네임스페이스
+//
+namespace YENA
+{
+
+/////////////////////////////////////////////////////////////////////////////
+//
+//! \class	Yena 
+//! \brief	예나 / 엔진 / 기반 프레임워크 클래스
+//! \details Yena 클래스는 애플리케이션의 전반적인 구성과 운영을 담당합니다. 
+//!			윈도 운용, 게임 루프, 자원 관리 및 3D 렌더링을 위한 주요 기반 인터페이스
+//!			(i.g., 프레임워크 Frameworks)를 제공하며 사용자 재정의에 의한 기능 확장도 지원합니다. \n
+//!			이와 함께 한글출력, 타이머, 수학, 색상 및 예외처리 등의 헬퍼도 준비되어 있습니다. 
+//! 
+//! \author 김기홍 / Kihong Kim / onlysonim@gmail.com
+//! \date	2020.08.22. Updated. (DX12.x Windows 10 SDK 10.0.x)
+//! \ingroup Yena
+// 
+/////////////////////////////////////////////////////////////////////////////
+
+class Yena							
+{
+public:
+	//======================================================================
+	// 기본 및 특수 인터페이스
+	//======================================================================
+	//Yena() = default;
+	Yena();
+	virtual ~Yena();
+
+	Yena(const Yena&) = delete;
+	Yena& operator = (const Yena&) = delete;
+
+	virtual int  init	();							//엔진 초기 설정.
+	virtual int  run	(float dTimeSys = 0);		//엔진 실행.
+	virtual void info	();							//엔진 도움말 출력.
+
+
+	//외부 인터페이스 추가는 여기에서...
+	//이름은 소문자로 시작.
+	//...
+
+
+protected:
+	//======================================================================
+	// 기반 인터페이스 : 사용자(파생클래스, e.g., Demo)(예제) 별 기능 확장용.
+	//======================================================================
+	virtual int load	(float dTime = 0) pure;		//리소스 불러오기
+	virtual int update	(float dTime = 0) pure;		//장면 갱신
+	virtual int draw	(float dTime = 0) pure;		//장면 렌더링
+	virtual int release	()				  pure;		//리소스 제거
+
+	//#define userLoad		load
+	//#define userUpdate	update
+	//#define userDraw		draw
+	//#define userRelease	release
+
+	//기반 메소드 추가는 여기에...
+	//이름은 소문자로 시작.
+	//...
+
+
+private:
+	//======================================================================
+	// 내부 인터페이스
+	//======================================================================
+	int _load	 (float dTime = 0);					//엔진 자원 불러오기.
+	int _update	 (float dTime = 0);					//엔진 갱신.
+	int _draw	 (float dTime = 0);					//장면 렌더링. 
+	int _release ();								//엔진 자원 제거.
+
+	//내부 인터페이스 및 데이터 추가는 여기에...
+	//이름은 밑줄(Underscore, '_')로 시작. 
+	//...
+
+	
+protected:
+	//======================================================================
+	// 애플리케이션 프레임워크 : 윈도 운용 인터페이스.
+	//======================================================================
+	HWND	m_hWnd  = 0;							//!< 윈도우 핸들.
+	BOOL	m_bLoop = TRUE;							//!< 게임루프 동작 플래그.
+	//float	m_dTime = 0;
+	Timer	m_Timer;								//!< 게임 타이머.
+	BOOL	m_bHelp = TRUE;							//!< 도움말 표시 플래그.
+		
+	//데이터 추가는 여기에...
+	//...	
+
+
+	//윈도 인터페이스 : 외부 함수 사용, 예제의 간결함을 위해 비 클래스화.
+	//virtual int createWindow();
+	//virtual int createRenderer();
+	//...
+
+	//보조 인터페이스.
+	virtual void    createTimer ();
+	virtual void	resetTimer  ();
+	virtual float	updateTimer	();
+	virtual float	getdTime	();
+	//virtual float   getFPS      ();
+	virtual void	putFPS		(int x, int y);
+
+	//윈도 인터페이스 추가는 여기에....
+	//...
+
+
+protected:
+	//======================================================================
+	// 렌더링 프레임워크 : GPU 장치 운용 데이터  
+	//======================================================================
+	ID3D12Device*				m_pDevice		= nullptr;						//!< D3D12 렌더링 장치 
+	//IDXGIAdapter1*			m_pAdapter		= nullptr;
+	IDXGIAdapter4*				m_pAdapter		= nullptr;						//!< DXGI 어뎁터
+	DXGI_ADAPTER_DESC3			m_AdptDesc      = {};							//!< DXGI 어뎁터 디스크립터
+	D3D_FEATURE_LEVEL			m_FeatLv		= D3D_FEATURE_LEVEL_12_0;		//!< 렌더링 장치 기능 레벨
+	
+	//DXGI_ADAPTER_DESC1		m_AdptDesc;
+	IDXGISwapChain4*			m_pSwapChain	= nullptr;						//!< 스왑체인
+	//const UINT				m_RTCnt			= 2;
+	#define m_RTCnt 2															//!< 렌더타겟 개수
+	ID3D12Resource*				m_pRT[m_RTCnt]	= { nullptr, };					//!< 렌더타겟(백버퍼) 배열
+	UINT						m_RTIndex		= 0;							//!< 렌더타겟 색인
+	UINT						m_RTDescSize	= 0;							//!< 렌더타겟 디스크립터 크기
+	ID3D12DescriptorHeap*		m_pRTDescHeap	= nullptr;						//!< 렌더타겟 디스크립터-힙
+	//D3D12_CPU_DESCRIPTOR_HANDLE m_RTDescs;
+	//ID3D12RenderTargetView*	m_pRTV = nullptr;
+
+	ID3D12Resource*				m_pDS			= nullptr;						//!< 깊이-스텐실 버퍼.
+	ID3D12DescriptorHeap*		m_pDSDescHeap	= nullptr;						//!< 깊이-스텐실 디스크립터-힙
+	DXGI_FORMAT					m_DSFormat		= DXGI_FORMAT_D32_FLOAT;		//!< 깊이-스텐실 버퍼 포맷
+
+	ID3D12GraphicsCommandList*	m_pCmdList		= nullptr;						//!< 커맨드 리스트.
+	ID3D12CommandQueue*			m_pCmdQueue		= nullptr;						//!< 커맨드 큐
+	ID3D12CommandAllocator*		m_pCmdAlloc		= nullptr;						//!< 커맨드 얼로케이터
+		
+	ID3D12Fence*				m_pFence		= nullptr;						//!< D3D12 펜스
+	UINT64						m_FenceValue	= 0;							//!< D3D12 펜스 값
+	//UINT64					m_FenceValueFrm[m_RTCnt] = { 0, };
+	//UINT						m_FrameIndex	= 0;
+	HANDLE						m_hFenceEvent	= nullptr;						//!< 펜스 동기화 이벤트
+ 
+	BOOL						m_bWindowMode	= TRUE;							//!< 창모드 또는 전체화면 모드 플래그. TRUE 면 창모드로 진행합니다.
+	BOOL						m_bVSync		= FALSE;						//!< 수직동기화 플래그.
+	DWORD						m_dwAA			= 1;							//!< 안티앨리어싱 샘플러 개수
+	DWORD						m_dwAF			= 1;							//!< 이방성 필터 값
+	BOOL						m_bMipmap		= TRUE;							//!< 밉멥 적용 플래그.
+	Color						m_ClearColor	= Color(0, 0.125f, 0.3f, 1);	//!< 배경색. 렌더타겟 리셋할때 사용.
+	
+	static TCHAR*				m_strFeatures[4][4];							//!< 기능 레벨 문자열.
+	TCHAR*						m_strFeatLv		= _T("N/A");					//!< 사용중인 렌더링 장치의 기능 레벨 문자열
+	
+	D3D12_VIEWPORT				m_VP;											//!< 뷰포트 정보 구조체
+	DXGI_MODE_DESC				m_Mode	= { 960, 600, 0, 1, DXGI_FORMAT_R8G8B8A8_UNORM };		//!< DXGI 렌더링 모드 정보 구조체. 화면 해상도, 색상 포멧 등의 정보를 포함합니다.
+
+	ID3D12PipelineState*		m_pPipelineState = nullptr;						//!< 파이프라인 상태 객체 포인터.
+	//ID3D12PipelineState*		m_pCurrPSO = nullptr;
+	std::unique_ptr<GraphicsMemory> m_pGMem = nullptr;							//!< 그래픽스 메모리 정보 운용 클래스. DirectXTK 에서 지원하는 헬퍼 중의 하나이다.
+
+	//! 현재	 PSO 객체 재정의. 구형 호환성 유지용.
+	#define m_pCurrPSO  m_pPipelineState
+
+	//!깊이-스텐실 상태 정의.
+	enum DEPTHSTANCILSTATE{
+		DS_DEPTH_ON,			//!< 깊이 테스트 켬
+		DS_DEPTH_OFF,			//!< 깊이 테스트 끔
+		DS_DEPTH_WRITE_OFF,		//!< 깊이 쓰기 끔
+
+		DS_MAX,
+	};
+
+	//데이터의 추가는 여기에서....
+	//...
+	 
+
+protected:
+	//======================================================================
+	// 렌더링 프레임워크 : GPU 장치 운용 인터페이스.
+	//======================================================================
+	virtual int  createD3D	();
+	virtual void releaseD3D	();
+	//int	createDeviceSwapChain();
+	//int	createRenderTarget	 ();
+	//int	createDepthStencil	 ();
+	//void	setViewPort			 ();
+
+	//int	clear			(CLEAR_FLAGS flag, Color col, float depth = 1.0f, UINT stencil = 0);
+	virtual int	 clear		();
+	virtual int  present	();
+
+	//int	getAdapters		();
+	//int	getAdapterInfo	(inout ADAPTER_DESC* pAd);
+	virtual void putAdapterInfo	(int x, int y, Color col);
+	//void	updateSystem	(float dTime);
+	virtual void putSysInfo		(int x, int y, Color col);
+	virtual void getFeatureLevel();
+	//int	getFeatureAA	(LPDEVICE pDev, DXGI_FORMAT fmt, DWORD dwAA);
+
+	//int	createCommands	();
+	virtual int	 resetCommands	();
+	virtual int	 executeCommands();
+	//void	releaseCommands	();
+
+	//int	createSyncObjs	();
+	virtual int  sync			();	 
+
+
+	//------------------------------------- 
+	// 버퍼 운용 인터페이스.
+	//------------------------------------- 
+	int	 createVertexBuffer		(LPVOID pData, UINT size, UINT stride, out LPVERTEXBUFFER* ppVB, out LPVERTEXBUFFERVIEW* ppVBV);
+	int	 createVertexBuffer		(LPVOID pData, UINT size, UINT stride, out VertexBuffer** ppVB);
+	int	 createIndexBuffer		(LPVOID pData, UINT size, out LPINDEXBUFFER* ppIB, out LPINDEXBUFFERVIEW* ppIBV);	
+	int	 createIndexBuffer		(LPVOID pData, UINT size, out IndexBuffer** ppIB);	
+	//int	 createConstantBuffer	(LPVOID pData, UINT size, out void** ppCB);
+	
+	void releaseVertexBuffer	(LPVERTEXBUFFER& rpVB, LPVERTEXBUFFERVIEW& rpVBV);
+	void releaseVertexBuffer	(VertexBuffer*&  rpVB);
+	void releaseIndexBuffer		(LPINDEXBUFFER&  rpIB, LPINDEXBUFFERVIEW&  rpIBV);
+	void releaseIndexBuffer		(IndexBuffer*&   rpIB);
+		
+	//상수 버퍼는 예제에 맞게 파생 클래스(e.g., Demo)에서 구현할 것.
+	virtual int	 createConstantBuffers	();
+	virtual void releaseConstantBuffers	();
+
+
+	//-----------------------------------
+	// 디스크립터-힙 운용 인터페이스.
+	//-----------------------------------
+	HRESULT			createCBSRVDescHeap		(UINT num, out LPDESCHEAP* ppDescHeap);
+	void			releaseCBSRVDescHeap	(LPDESCHEAP& rpDescHeap);
+	CPU_DESCHANDLE	getCPUDescriptorHandle	(LPDESCHEAP pDescHeap, UINT num);
+	GPU_DESCHANDLE	getGPUDescriptorHandle	(LPDESCHEAP pDescHeap, UINT num);
+	//HRESULT createCBHeap		(UINT num);
+	//HRESULT createDescHeap	(D3D12_DESCRIPTOR_HEAP_TYPE type, UINT num, out ID3D12DescriptorHeap** ppDescHeap);
+	#define createCBDescHeap	createCBSRVDescHeap				//!< 상수버퍼용 디스크립터-힙을 생성합니다.
+	#define createCBVDescHeap	createCBSRVDescHeap				//!< 상수버퍼용 디스크립터-힙을 생성합니다.
+	#define createSRVDescHeap	createCBSRVDescHeap				//!< 셰이더용 디스크립터-힙을 생성합니다.
+
+	//------------------------------------- 
+	// 입력 레이아웃 운용 인터페이스.
+	//-------------------------------------
+	int	 createInputLayout	(LPINPUTELEMENT ed, DWORD num, out LPINPUTLAYOUT* ppLayout);
+	void releaseInputLayout	(inout LPINPUTLAYOUT& rpLayout);
+	//virtual D3D12_INPUT_LAYOUT_DESC getInputLayout () { return D3D12_INPUT_LAYOUT_DESC(); }
+
+
+protected:
+	//======================================================================
+	// 셰이더 운용 인터페이스 : 기본, 공통
+	//======================================================================
+	LPSHADER			 m_pVS		 = nullptr;					//!< 정점 셰이더 객체(바이너리 코드)
+	LPSHADER			 m_pPS		 = nullptr;					//!< 픽셀 셰이더 객체(바이너리 코드)
+	ID3D12RootSignature* m_pRootSign = nullptr;					//!< 루트 시그니처
+		
+	virtual int	 createShaders	();
+	virtual int	 createShader	(TCHAR* filename);
+	virtual int	 updateShaders	();
+	virtual void releaseShaders	();
+			int	 compileShader	(TCHAR* filename, CHAR* entry, CHAR* shaderModel, out LPSHADER* ppfx);
+
+	//루트 시그니쳐 인터페이스.
+	virtual int  createRootSignatures  ();
+	virtual void releaseRootSignatures ();
+	//virtual int  createRootSignature_v11();
+
+
+protected:
+	//======================================================================
+	// 렌더링 상태 인터페이스
+	//======================================================================
+	std::map<UINT, ID3D12PipelineState*> m_pPSO;				//! 파이프라인 상태객체 컨테이너
+	
+	virtual int   createPipelineStates  ();
+	virtual void  releasePipelineStates (); 
+	//virtual int   createPipelineState   (UINT id, TCHAR* type, const GRAPHICS_PIPELINE_STATE_DESC& state);
+	virtual int   createPipelineState	(UINT id, const GRAPHICS_PIPELINE_STATE_DESC& state);
+	virtual LPPSO getPSO				(UINT id);	 	 	
+
+	//! 파이프라인 상태객체(PSO) 생성 매크로
+	//! \throw	실패시 Error 를 발생합니다.
+	#define createPSO(id, psd) \
+	{ \
+		HRESULT hr = createPipelineState(UINT(id), (psd)); \
+		if(FAILED(hr)) throw Error(hr, dbgTrace(_T("PSO ID=%s(%d)"), toString(id), id) ); \
+	}
+	
+
+
+protected:
+	//======================================================================
+	// 에러 출력 인터페이스
+	//======================================================================
+	//... expAfx.h 참조.
+
+
+
+protected:
+	//======================================================================
+	// 폰트 인터페이스.
+	//======================================================================
+ 	SpriteFont*		m_pFont		 = nullptr;						//!< 폰트 객체. DirectXTK::SpriteFont 를 사용합니다.  \see DirectX::SpriteFont
+	SpriteBatch*	m_pFontBatch = nullptr;						//!< 폰트 운용 클래스.
+	DescriptorHeap* m_pFontDesc	 = nullptr;						//!< 폰트 객체용 디스크립터-힙
+
+	//virtual int  createFont	(LPDEVICE pDev);
+	virtual int  createFonts	();
+	virtual void releaseFonts	();
+	//virtual void fontOnDeviceLost ();
+	virtual void drawText		(int x, int y, const Color& col, TCHAR* msg, ...);
+	//virtual void  ynTextDraw	( int x, int y, Color col, char* msg, ...);
+ 
+
+
+protected:
+	//======================================================================
+	// 기타 추가 인터페이스.
+	//======================================================================
+	//... 인퍼페이스 추가는 이곳에 ...
+
+
+	// 호환성 유지용 재정의.
+	#define ynLoadShader			compileShader 
+	#define ynUpdateCB_				ynUpdateBuffer
+
+	//각종 자원해제 매크로. 기능적으로는 모두 동일하다.
+	#define ynReleaseResource(res)	ynSafeRelease(res)
+	#define ynReleaseBuffer(buff)	ynSafeRelease(buff)
+	#define ynReleaseVB				ynReleaseVertexBuffer
+	#define ynReleaseIB				ynReleaseIndexBuffer
+	#define	ynReleaseCB				ynReleaseConstantBuffer
+	//#define ynReleaseTEX			ynSafeRelease
+	#define ynReleaseShader(fx)		ynSafeRelease(fx)
+	#define ynReleaseVS				ynReleaseShader
+	#define ynReleasePS				ynReleaseShader
+	#define ynReleaseGS				ynReleaseShader
+	#define ynReleaseCS				ynReleaseShader
+	#define ynReleaseFX				ynReleaseShader
+	
+}; // end of class Yena
+
+
+
+//엔진 이름을 여러분의 취향에 맞게 바꾸어 봅시다...
+typedef Yena BasicFrameWorks;
+typedef Yena BasicApp;
+typedef Yena GameYena;
+typedef Yena GameApp;
+
+
+} // end of namespace YENA
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// 엔진 프레임워크 설명
+//
+///////////////////////////////////////////////////////////////////////////////
+//! \defgroup	Yena 엔진 프레임워크
+//!	\brief		공통 기반 프레임워크와 확장 라이브러리. \n
+//!	\details	3D 애플리케이션 제작용 공통 기반 프레임워크와 확장 라이브러리를 제공합니다.
+//! \n \copydetails YENA
+//! \n\n \copydetails Yena
+//! \par		소스 파일
+//! \ref		Yena.h, Yena.cpp, ynWindow.h, ynDXAfx.h, ynError.h, ynTimer.h 
+//
+//! \namespace	YENA
+//! \brief		예나 / 엔진 / 최상위 네임스페이스
+//! \details	네임스페이스 YENA 에는 엔진 및 예제 전체에서 사용될 전역 데이터, 상수, 매크로, 함수, 헬퍼 클래스 등을 정의합니다.
+//! \note		D3D 인터페이스들은 직관적인 표현, 호환성 향상 및 일반화를 위해 재정의하였습니다. 
+//! 
+//!	2020.08.22 김기홍 Kihong.Kim / onlysonim@gmail.com 
+//! \ingroup	Yena 
+namespace YENA
+{
+
+	// 전역(공유) 데이터, 함수 및 인터페이스의 추가는 여기에...
+	//...
+
+	//GLOBALCONST TCHAR* yn_strProjVer	= _T("v.0.9");
+	//GLOBALCONST TCHAR* yn_strEngVer	= _T("v.1.0.0@1");
+	//GLOBALCONST TCHAR* yn_strBuildVer	= _T("Build.20.0822");
+
+}
+
+
+using namespace YENA;
+
+
+
+
+/****************** The end of file "Yena.h" ***********************************/
