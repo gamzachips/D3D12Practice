@@ -80,7 +80,7 @@ private:
 	HANDLE mFenceEvent = nullptr;
 
 	//viewport
-	D3D12_VIEWPORT mViewport;
+	D3D12_VIEWPORT mViewports[3];
 
 	// AA & AF option
 	DWORD		mAA = 1;

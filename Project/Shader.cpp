@@ -10,6 +10,7 @@ bool Shader::LoadShader()
 	//ºŒ¿Ã¥ı ∑ŒµÂ.
 	LoadShader(filename, "VS_Main", "vs_5_1", &mVS);
 	LoadShader(filename, "PS_Main", "ps_5_1", &mPS);
+	LoadShader(filename, "GS_Main", "gs_5_1", &mGS);
 
 	return true;
 }

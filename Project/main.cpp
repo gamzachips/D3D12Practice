@@ -19,7 +19,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 					LPSTR lpCmdLine,
 					int nCmdShow)
 {
-	if (!InitWindow(960, 600)) return 0;
+	if (!InitWindow(1500, 600)) return 0;
 
 	DemoApp app;
 	app.Init(g_hWnd);

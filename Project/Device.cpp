@@ -90,16 +90,11 @@ HRESULT Device::CreateRenderTarget()
 
 void Device::SetViewPort()
 {
-	D3D12_VIEWPORT vp;
-	vp.TopLeftX = 0;
-	vp.TopLeftY = 0;
-	vp.Width = (FLOAT)mMode.Width;
-	vp.Height = (FLOAT)mMode.Height;
-	vp.MinDepth = 0.0f;
-	vp.MaxDepth = 1.0f;
+	mViewports[0] = { 0.0f, 0.0f, 400.0f, 400.0f, 0.0f, 1.0f };
+	mViewports[1] = { 300.0f, 0.0f, 400.0f, 400.0f, 0.0f, 1.0f };
+	mViewports[2] = { 600.0f, 0.0f, 400.0f, 400.0f, 0.0f, 1.0f };
+};
 
-	mViewport = vp;
-}
 
 bool Device::CommandsCreate()
 {
@@ -178,12 +173,16 @@ bool Device::GPUSync()
 
 bool Device::ClearBackBuffer(COLOR col)
 {
-	D3D12_RECT rc = { 0, 0, (LONG)mMode.Width, (LONG)mMode.Height };
+	D3D12_RECT scissorRects[3] = {
+	{ 0, 0, 400, 400 },
+	{ 300, 0, 700, 400 },
+	{ 600, 0, 1000, 400 }
+	};
 
 	CommandsReset();
 	
-	mCommandList->RSSetViewports(1, &mViewport);
-	mCommandList->RSSetScissorRects(1, &rc);
+	mCommandList->RSSetViewports(3, mViewports);
+	mCommandList->RSSetScissorRects(3, scissorRects);
 
 	D3D12_RESOURCE_BARRIER br = {};
 	br.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;

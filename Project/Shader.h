@@ -18,6 +18,7 @@ private:
 public:
 	ID3DBlob* mVS = nullptr;
 	ID3DBlob* mPS = nullptr;
+	ID3DBlob* mGS = nullptr;
 
 	ID3D12RootSignature* mRootSignature = nullptr;
 };

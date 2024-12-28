@@ -77,12 +77,14 @@ bool App::CreatePipelineState()
 
 	D3D12_SHADER_BYTECODE vs = { mShader->mVS->GetBufferPointer(), mShader->mVS->GetBufferSize() };
 	D3D12_SHADER_BYTECODE ps = { mShader->mPS->GetBufferPointer(), mShader->mPS->GetBufferSize() };
+	D3D12_SHADER_BYTECODE gs = { mShader->mGS->GetBufferPointer(), mShader->mGS->GetBufferSize() };
 
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psDesc{};
 	psDesc.pRootSignature = mShader->mRootSignature;
 	psDesc.VS = vs;
 	psDesc.PS = ps;
+	psDesc.GS = gs;
 	psDesc.BlendState = bDesc;
 	psDesc.SampleMask = UINT_MAX;
 	psDesc.RasterizerState = rDesc;
