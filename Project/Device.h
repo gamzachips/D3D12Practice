@@ -23,14 +23,13 @@ public:
 	void SetViewPort();
 
 	//Commands
-	
-	bool CommandsCreate(); //커맨드 객체를 생성합니다. 
+	bool CommandsCreate();
 	bool CommandsReset();
 	bool CommandsExcute();
 	void CommandsRelease();
 
 	//GPUSync
-	bool GPUSyncObjsCreate(); //동기화 객체를 생성합니다. 
+	bool GPUSyncObjsCreate(); 
 	void GPUSyncObjsRelease();
 	bool GPUSync();
 
@@ -48,6 +47,7 @@ public:
 	bool CreateBuffer(UINT size, OUT ID3D12Resource** ppBuff);
 	bool UpdateBuffer(ID3D12Resource* pBuff, LPVOID pData, UINT size);
 	bool CreateVertexBuffer(void* pData, UINT size, UINT stride, OUT ID3D12Resource** ppVB, D3D12_VERTEX_BUFFER_VIEW** ppVBV);
+	bool CreateConstantBuffer(void* pData, UINT size, OUT ID3D12Resource** ppCB);
 
 	ID3D12Device* GetDevice() { return mDevice; }
 	ID3D12GraphicsCommandList* GetCommandList() { return mCommandList; }

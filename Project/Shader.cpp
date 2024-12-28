@@ -64,9 +64,16 @@ void Shader::UpdateShader()
 
 bool Shader::CreateRootSignature(ID3D12Device* device)
 {
+	D3D12_ROOT_PARAMETER param{};
+	param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	param.Constants.ShaderRegister = 0;
+	param.Constants.RegisterSpace = 0;
+	param.Constants.Num32BitValues = 4;
+	param.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
 	D3D12_ROOT_SIGNATURE_DESC rsDesc{};
-	rsDesc.NumParameters = 0;
-	rsDesc.pParameters = nullptr;
+	rsDesc.NumParameters = 1;
+	rsDesc.pParameters = &param;
 	rsDesc.NumStaticSamplers = 0;
 	rsDesc.pStaticSamplers = nullptr;
 	rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;

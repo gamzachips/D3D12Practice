@@ -7,7 +7,7 @@ struct VSOutput
     uint viewportIndex : SV_ViewportArrayIndex;
 };
 
-
+float4 cbColor : register(b0);
 
 VSOutput VS_Main( float4 pos : POSITION,  float4 color : COLOR0 )
 {
@@ -40,10 +40,20 @@ void GS_Main(triangle VSOutput input[3], inout TriangleStream<VSOutput> output)
 }
 
 
-float4 PS_Main(VSOutput output) : SV_TARGET
+float4 PS_Main(VSOutput input) : SV_TARGET
 {
-	//float4 col = {1, 0, 1, 1};
-
-    return output.col;
+    if (input.viewportIndex == 0)
+    {
+        return input.col;
+    }
+    else if (input.viewportIndex == 1)
+    {
+        return cbColor;
+    }
+    else if (input.viewportIndex == 2)
+    {
+        return input.col + input.col * cbColor;
+    }
+    return input.col;
 }
 

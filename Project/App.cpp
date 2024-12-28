@@ -24,14 +24,15 @@ void App::Init(HWND hWnd)
 {
 	mDevice->DXSetup(hWnd);
 	mShader->CreateShader(mDevice->GetDevice());
-	
+	CreateCBs();
+
 	mDevice->CommandsReset();
 	DataLoading();
 	mDevice->CommandsExcute();
 	mDevice->GPUSync();
 }
 
-void App::Update()
+void App::Update(float deltaTime)
 {
 	mShader->UpdateShader();
 }

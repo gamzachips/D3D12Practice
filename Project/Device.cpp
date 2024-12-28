@@ -303,3 +303,16 @@ bool Device::CreateVertexBuffer(void* pData, UINT size, UINT stride, OUT ID3D12R
 
 	return true;
 }
+
+bool Device::CreateConstantBuffer(void* pData, UINT size, OUT ID3D12Resource** ppCB)
+{
+	ID3D12Resource* pCB = nullptr;
+	HRESULT hr = CreateBuffer(size, &pCB);
+	CHECK(hr);
+
+	UpdateBuffer(pCB, pData, size);
+
+	*ppCB = pCB;
+
+	return true;
+}

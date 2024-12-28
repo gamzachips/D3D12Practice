@@ -10,7 +10,7 @@ public:
 	App();
 	~App();
 	virtual void Init(HWND hWnd);
-	virtual void Update();
+	virtual void Update(float deltaTime);
 	virtual void Render();
 	virtual void Release();
 
@@ -19,6 +19,7 @@ public:
 
 protected:
 
+	
 	bool	CreatePipelineState();
 	void	ReleasePipelineState();
 	bool	CreateInputLayout(D3D12_INPUT_ELEMENT_DESC* ed, DWORD num, D3D12_INPUT_LAYOUT_DESC** ppLayout);
@@ -26,7 +27,7 @@ protected:
 
 	virtual void	DataLoading() abstract;
 	virtual void	DataRelease() abstract;
-
+	virtual void	CreateCBs() abstract;
 	void	DrawText(int x, int y, const TCHAR* msg, ...);
 	void	PutFPS(int x, int y);
 

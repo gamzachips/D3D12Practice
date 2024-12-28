@@ -24,13 +24,22 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	DemoApp app;
 	app.Init(g_hWnd);
 
+	LARGE_INTEGER frequency;
+	LARGE_INTEGER prevTime;
+	::QueryPerformanceCounter(&prevTime);
 	while (g_bLoop)
 	{
 		if (!MessagePump())
 			break;
-		app.Update();
+		
+		::QueryPerformanceFrequency(&frequency);
+		LARGE_INTEGER nowTime;
+		::QueryPerformanceCounter(&nowTime);
+		float elapsedTime = (nowTime.QuadPart - prevTime.QuadPart) / (float)frequency.QuadPart;
+		prevTime = nowTime;
 
 		{
+			app.Update(elapsedTime);
 			app.RenderBegin();
 			app.Render();
 			app.RenderEnd();

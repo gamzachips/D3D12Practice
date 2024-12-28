@@ -16,10 +16,10 @@ void DemoApp::Init(HWND hWnd)
     __super::Init(hWnd);
 }
 
-void DemoApp::Update()
+void DemoApp::Update(float deltaTime)
 {
-    __super::Update();
-    ObjUpdate();
+    __super::Update(deltaTime);
+    ObjUpdate(deltaTime);
 }
 
 void DemoApp::Render()
@@ -44,6 +44,11 @@ void DemoApp::DataRelease()
 
     ObjRelease();
     ReleasePipelineState();
+}
+
+void DemoApp::CreateCBs()
+{
+   // mDevice->CreateConstantBuffer();
 }
 
 bool DemoApp::ObjLoad()
@@ -77,13 +82,39 @@ bool DemoApp::ObjLoad()
 
 void DemoApp::ObjRelease()
 {
-    SAFE_RELEASE(mVertexBuffer);					//정점버퍼 제거.★
+    SAFE_RELEASE(mVertexBuffer);	
     SAFE_DELETE(mVertexBufferView);
-    ReleaseInputLayout(mInputLayout);		//입력레이아웃 제거.★
+    ReleaseInputLayout(mInputLayout);		
 }
 
-void DemoApp::ObjUpdate(float dTime)
+void DemoApp::ObjUpdate(float deltaTime)
 {
+    //오브젝트 갱신, 상수버퍼 갱신 UpdateBuffer(...);
+    mColorTime += deltaTime;
+
+    float phase = mColorTime * mColorSpeed;
+
+    if (phase < 1.0f)
+    {
+        float t = phase;
+        mColor = {1.f - t, t, 0.f, 1.f };
+    }
+    else if (phase < 2.f)
+    {
+        float t = phase - 1.f;
+        mColor = { 0.f, 1.f - t, t, 1.f };
+    }
+    else
+    {
+        float t = phase - 2.f;
+        mColor = { t, 0, 1.f - t, 1.f };
+    }
+
+    if (phase >= 3.0f)
+    {
+        mColorTime = 0.f;
+    }
+
 }
 
 void DemoApp::ObjDraw(float dTime)
@@ -91,6 +122,8 @@ void DemoApp::ObjDraw(float dTime)
     ID3D12GraphicsCommandList* commandList = mDevice->GetCommandList();
 
     commandList->SetGraphicsRootSignature(mShader->mRootSignature);
+
+    commandList->SetGraphicsRoot32BitConstants(0, 4, (void*)&mColor, 0);
 
     commandList->SetPipelineState(mPipelineState);
 
