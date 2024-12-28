@@ -12,36 +12,45 @@
     <Filter Include="소스 파일\99.Headers">
       <UniqueIdentifier>{4e7dc613-28f7-4a41-9325-298d88da7e02}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\0.Main">
+    <Filter Include="소스 파일\1.Main">
       <UniqueIdentifier>{4a3ac94c-4a9d-4621-8e31-5d622ef87761}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\0.Apps">
+      <UniqueIdentifier>{f8c8b1e2-2125-416b-b53c-4e80fe9ee4e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\2.Shader">
+      <UniqueIdentifier>{6c265c01-ead6-48a5-b305-598a53eaca50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\2.Shader\fx">
+      <UniqueIdentifier>{61010354-28bf-41c2-b16f-bf1ff778896e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>소스 파일\0.Main</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>소스 파일\0.Main</Filter>
+      <Filter>소스 파일\1.Main</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>소스 파일\99.Headers</Filter>
     </ClCompile>
     <ClCompile Include="Device.cpp">
-      <Filter>소스 파일\0.Main</Filter>
+      <Filter>소스 파일\1.Main</Filter>
     </ClCompile>
     <ClCompile Include="App.cpp">
-      <Filter>소스 파일\0.Main</Filter>
+      <Filter>소스 파일\1.Main</Filter>
+    </ClCompile>
+    <ClCompile Include="DemoApp.cpp">
+      <Filter>소스 파일\0.Apps</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>소스 파일\2.Shader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Renderer.h">
-      <Filter>소스 파일\0.Main</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>소스 파일\99.Headers</Filter>
     </ClInclude>
     <ClInclude Include="Device.h">
-      <Filter>소스 파일\0.Main</Filter>
+      <Filter>소스 파일\1.Main</Filter>
     </ClInclude>
     <ClInclude Include="Types.h">
       <Filter>소스 파일\99.Headers</Filter>
@@ -50,7 +59,18 @@
       <Filter>소스 파일\99.Headers</Filter>
     </ClInclude>
     <ClInclude Include="App.h">
-      <Filter>소스 파일\0.Main</Filter>
+      <Filter>소스 파일\1.Main</Filter>
     </ClInclude>
+    <ClInclude Include="DemoApp.h">
+      <Filter>소스 파일\0.Apps</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>소스 파일\2.Shader</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\fx\Demo.fx">
+      <Filter>소스 파일\2.Shader\fx</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

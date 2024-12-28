@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "App.h"
+#include "DemoApp.h"
 
 
 HWND g_hWnd = NULL;
@@ -21,7 +21,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 {
 	if (!InitWindow(960, 600)) return 0;
 
-	App app;
+	DemoApp app;
 	app.Init(g_hWnd);
 
 	while (g_bLoop)
@@ -29,7 +29,13 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 		if (!MessagePump())
 			break;
 		app.Update();
-		app.Render();
+
+		{
+			app.RenderBegin();
+			app.Render();
+			app.RenderEnd();
+		}
+		
 	}
 
 	app.Release();

@@ -1,5 +1,17 @@
 #pragma once
 
+struct VertexBuffer
+{
+	ID3D12Resource* pBuff = nullptr;
+	D3D12_VERTEX_BUFFER_VIEW view = {};
+};
+
+struct IndexBuffer
+{
+	ID3D12Resource* pBuff = nullptr;
+	D3D12_INDEX_BUFFER_VIEW	view = {};
+};
+
 class Device
 {
 public:
@@ -32,6 +44,14 @@ public:
 	//void GetDeviceInfo();
 	//void GetFeatureLevel();
 
+	//Buffer
+	bool CreateBuffer(UINT size, OUT ID3D12Resource** ppBuff);
+	bool UpdateBuffer(ID3D12Resource* pBuff, LPVOID pData, UINT size);
+	bool CreateVertexBuffer(void* pData, UINT size, UINT stride, OUT ID3D12Resource** ppVB, D3D12_VERTEX_BUFFER_VIEW** ppVBV);
+
+	ID3D12Device* GetDevice() { return mDevice; }
+	ID3D12GraphicsCommandList* GetCommandList() { return mCommandList; }
+	DXGI_MODE_DESC GetMode() { return mMode; }
 private:
 	IDXGIAdapter4* mAdapter = nullptr;
 	ID3D12Device* mDevice = nullptr;

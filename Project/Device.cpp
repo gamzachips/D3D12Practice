@@ -238,3 +238,69 @@ float Device::GetEngineTime()
 
 	return dTime;
 }
+
+bool Device::CreateBuffer(UINT size, OUT ID3D12Resource** ppBuff)
+{
+	D3D12_HEAP_PROPERTIES hp{};
+	hp.Type = D3D12_HEAP_TYPE_UPLOAD;
+	hp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	hp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+	hp.CreationNodeMask = 0;
+	hp.VisibleNodeMask = 0;
+
+	D3D12_RESOURCE_DESC rDesc{};
+	rDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	rDesc.Alignment = 0;
+	rDesc.Width = size;
+	rDesc.Height = 1;
+	rDesc.DepthOrArraySize = 1;
+	rDesc.MipLevels = 1;
+	rDesc.Format = DXGI_FORMAT_UNKNOWN;
+	rDesc.SampleDesc.Count = 1;
+	rDesc.SampleDesc.Quality = 0;
+	rDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	rDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+	ID3D12Resource* pBuff = nullptr;
+	HRESULT hr = mDevice->CreateCommittedResource(
+		&hp, D3D12_HEAP_FLAG_NONE, &rDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr, IID_PPV_ARGS(&pBuff));
+
+	CHECK(hr);
+
+	*ppBuff = pBuff;
+
+	return true;
+}
+
+bool Device::UpdateBuffer(ID3D12Resource* pBuff, LPVOID pData, UINT size)
+{
+	if (pData == nullptr) return false;
+
+	UINT8* buff = nullptr;
+	HRESULT hr = pBuff->Map(0, nullptr, (void**)&buff);
+	CHECK(hr);
+
+	memcpy(buff, pData, size);
+	pBuff->Unmap(0, nullptr);
+
+	return true;
+}
+
+bool Device::CreateVertexBuffer(void* pData, UINT size, UINT stride, OUT ID3D12Resource** ppVB, D3D12_VERTEX_BUFFER_VIEW** ppVBV)
+{
+	ID3D12Resource* pVB = nullptr;
+	CreateBuffer(size, &pVB);
+	UpdateBuffer(pVB, pData, size);
+
+	D3D12_VERTEX_BUFFER_VIEW* pVBV = new D3D12_VERTEX_BUFFER_VIEW;
+	pVBV->BufferLocation = pVB->GetGPUVirtualAddress();
+	pVBV->SizeInBytes = size;
+	pVBV->StrideInBytes = stride;
+
+	*ppVB = pVB;
+	*ppVBV = pVBV;
+
+	return true;
+}

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "App.h"
 #include "Device.h"
+#include "Shader.h"
 
 COLOR g_ClearColor(0, 0.125f, 0.3f, 1);
 
@@ -10,49 +11,118 @@ extern HWND g_hWnd;
 App::App()
 {
 	mDevice = new Device;
+	mShader = new Shader;
 }
 
 App::~App()
 {
 	SAFE_DELETE(mDevice);
+	SAFE_DELETE(mShader);
 }
 
 void App::Init(HWND hWnd)
 {
 	mDevice->DXSetup(hWnd);
+	mShader->CreateShader(mDevice->GetDevice());
 	
+	mDevice->CommandsReset();
 	DataLoading();
+	mDevice->CommandsExcute();
+	mDevice->GPUSync();
 }
 
 void App::Update()
 {
+	mShader->UpdateShader();
 }
 
 void App::Render()
 {
-	mDevice->ClearBackBuffer(g_ClearColor);
-	SceneRender();
-
-	mDevice->Flip();
 }
 
 void App::Release()
 {
 	mDevice->DXRelease();
+	mShader->ReleaseShader();
 	DataRelease();
+	ReleasePipelineState();
 }
 
-int App::DataLoading()
+void App::RenderBegin()
 {
-	return 0;
+	mDevice->ClearBackBuffer(g_ClearColor);
+
 }
 
-void App::DataRelease()
+void App::RenderEnd()
 {
+	mDevice->Flip();
 }
 
-void App::SceneRender()
+
+
+bool App::CreatePipelineState()
 {
+	D3D12_RASTERIZER_DESC rDesc = {};
+	rDesc.FillMode = D3D12_FILL_MODE_SOLID;
+	rDesc.CullMode = D3D12_CULL_MODE_NONE;
+
+	D3D12_BLEND_DESC bDesc = {};
+	bDesc.RenderTarget[0].BlendEnable = false;
+	bDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	D3D12_DEPTH_STENCIL_DESC dsDesc = {};
+	dsDesc.DepthEnable = false;
+	dsDesc.StencilEnable = false;
+
+	D3D12_SHADER_BYTECODE vs = { mShader->mVS->GetBufferPointer(), mShader->mVS->GetBufferSize() };
+	D3D12_SHADER_BYTECODE ps = { mShader->mPS->GetBufferPointer(), mShader->mPS->GetBufferSize() };
+
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psDesc{};
+	psDesc.pRootSignature = mShader->mRootSignature;
+	psDesc.VS = vs;
+	psDesc.PS = ps;
+	psDesc.BlendState = bDesc;
+	psDesc.SampleMask = UINT_MAX;
+	psDesc.RasterizerState = rDesc;
+	psDesc.InputLayout = *mInputLayout;
+	psDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	psDesc.NumRenderTargets = 1;
+	psDesc.RTVFormats[0] = mDevice->GetMode().Format;
+	psDesc.SampleDesc = { 1, 0 };
+
+	ID3D12PipelineState* pPSO = nullptr;
+	HRESULT hr = mDevice->GetDevice()->CreateGraphicsPipelineState(&psDesc, IID_PPV_ARGS(&pPSO));
+	CHECK(hr);
+
+	mPipelineState = pPSO;
+
+	return true;
+}
+
+void App::ReleasePipelineState()
+{
+	SAFE_RELEASE(mPipelineState);
+}
+
+bool App::CreateInputLayout(D3D12_INPUT_ELEMENT_DESC* ed, DWORD num, D3D12_INPUT_LAYOUT_DESC** ppLayout)
+{
+	D3D12_INPUT_LAYOUT_DESC* pLayout = new D3D12_INPUT_LAYOUT_DESC;
+	pLayout->pInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[num];
+
+	CopyMemory((void*)pLayout->pInputElementDescs, ed, num * sizeof(D3D12_INPUT_ELEMENT_DESC));
+	pLayout->NumElements = num;
+
+	*ppLayout = pLayout;
+
+	return true;
+}
+
+void App::ReleaseInputLayout(D3D12_INPUT_LAYOUT_DESC*& rpLayout)
+{
+	SAFE_DELARRY(rpLayout->pInputElementDescs);
+	SAFE_DELETE(rpLayout);
 }
 
 void App::DrawText(int x, int y, const TCHAR* msg, ...)
